@@ -34,6 +34,7 @@ def run_query(query, params=None):
 # --- INICIO DE LA APP ---
 st.set_page_config(layout="wide", page_title="Pokémon Team Builder")
 st.title("🔥 Pokémon Team Builder Analítico")
+st.markdown("# <span style='color:gold;'>ϞϞ(๑⚈ . ̫ ⚈๑)∩</span> vs <span style='color:red;'>(</span>⦿<span style='color:red;'>)</span>", unsafe_allow_html=True)
 st.markdown("Una aplicación que aprovecha una base de datos relacional para analizar las formas alternativas y debilidades de equipos Pokémon.")
 
 # Cargar todos los datos una vez

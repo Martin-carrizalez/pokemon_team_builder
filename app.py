@@ -51,7 +51,7 @@ team_pokemon_names = st.multiselect(
 if len(team_pokemon_names) > 0:
     team_df = df_pokemon[df_pokemon['name'].isin(team_pokemon_names)]
     st.subheader("Tu Equipo Seleccionado")
-    cols_to_show = ['name','form_type','type1','type2','total_stats','hp','attack','defense']
+    cols_to_show = ['name','form_type','type1','type2','total_stats','hp','attack','defense', 'sp_attack','sp_defense','speed']
     st.dataframe(team_df[cols_to_show])
 
     # --- ANÁLISIS DE DEBILIDADES (LA FUNCIÓN PRINCIPAL) ---
@@ -127,3 +127,38 @@ with st.expander("Ver Dashboard y Análisis Avanzado de la Base de Datos"):
         fig_forms = px.pie(df_forms, names='base_name', values='total_formas',
                        title='Pokémon con 3 o más Formas en el Dataset')
         st.plotly_chart(fig_forms, use_container_width=True)
+
+# --- SECCIÓN 4: DEMOSTRACIÓN DE OBJETOS SQL AVANZADOS ---
+st.header("⚙️ Demostración de Lógica en la Base de Datos")
+
+st.subheader("Búsqueda con Procedimiento Almacenado")
+st.write("Esta función llama directamente al procedimiento `sp_find_pokemon_by_type` en MySQL.")
+
+col_type, col_stats = st.columns(2)
+# Obtenemos la lista de tipos únicos de la base de datos
+all_types = sorted(pd.concat([df_pokemon['type1'], df_pokemon['type2']]).dropna().unique())
+selected_type = col_type.selectbox("Elige un tipo:", all_types)
+min_stats = col_stats.slider("Stats Totales Mínimos:", 300, 800, 500, step=50)
+
+if st.button("Buscar Pokémon con Procedimiento"):
+    # En lugar de escribir un SELECT en Python, llamamos al procedimiento
+    query = f"CALL sp_find_pokemon_by_type('{selected_type}', {min_stats});"
+    
+    
+    # Usamos una función de ayuda para manejar la llamada
+    def call_stored_procedure(query):
+        conn = mysql.connector.connect(**DB_CONFIG)  # Nueva conexión cada vez
+        cursor = conn.cursor(dictionary=True)
+        cursor.execute(query)
+        result = cursor.fetchall()
+        cursor.close()
+        conn.close()  # Cierra la conexión después de usarla
+        return pd.DataFrame(result)
+
+    df_procedure_result = call_stored_procedure(query)
+
+    if not df_procedure_result.empty:
+        st.write(f"Resultados para el tipo '{selected_type}' con más de {min_stats} stats totales:")
+        st.dataframe(df_procedure_result)
+    else:
+        st.info("No se encontraron Pokémon con esos criterios.")

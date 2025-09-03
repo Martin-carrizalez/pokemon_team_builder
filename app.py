@@ -162,3 +162,41 @@ if st.button("Buscar Pokémon con Procedimiento"):
         st.dataframe(df_procedure_result)
     else:
         st.info("No se encontraron Pokémon con esos criterios.")
+        
+# --- SECCIÓN 3: DEMOSTRACIÓN DE OBJETOS SQL AVANZADOS (VISTAS) ---
+
+with st.expander("Ver Análisis Avanzado usando Vistas de la Base de Datos"):
+
+    st.subheader("🚀 Análisis de Mega Evoluciones (usando la Vista `vw_mega_evolutions`)")
+    st.write("Esta visualización se genera con la simple consulta: `SELECT * FROM vw_mega_evolutions`")
+
+    # La consulta en Python es ahora súper simple gracias a la vista.
+    # La lógica compleja (el JOIN) vive y se ejecuta en MySQL.
+    mega_view_query = "SELECT * FROM vw_mega_evolutions ORDER BY power_increase DESC;"
+    df_mega_view = run_query(mega_view_query)
+
+    if not df_mega_view.empty:
+        # Usamos .head(15) para mostrar solo los 15 más relevantes en el gráfico
+        fig_mega = px.bar(df_mega_view.head(15), 
+                      x='base_name', 
+                      y='power_increase',
+                      title='Top 15 Mayores Incrementos de Stats por Mega Evolución',
+                      labels={'base_name': 'Pokémon', 'power_increase': 'Aumento de Stats'})
+        st.plotly_chart(fig_mega, use_container_width=True)
+        st.write("Tabla completa de la vista:")
+        st.dataframe(df_mega_view)
+    else:
+        st.warning("No se encontraron datos en la vista de Mega Evoluciones.")
+
+    st.subheader("🔥 Mejores Atacantes de Tipo Fuego (usando la Vista `vw_fire_type_fighters`)")
+    st.write("Esta tabla se genera con la simple consulta: `SELECT * FROM vw_fire_type_fighters`")
+
+    # De nuevo, la consulta en Python es muy limpia.
+    # La lógica de filtrado vive y se ejecuta en MySQL.
+    fire_view_query = "SELECT * FROM vw_fire_type_fighters;"
+    df_fire_view = run_query(fire_view_query)
+    
+    if not df_fire_view.empty:
+        st.dataframe(df_fire_view)
+    else:
+        st.warning("No se encontraron datos en la vista de luchadores de tipo Fuego.")

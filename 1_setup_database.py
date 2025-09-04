@@ -72,15 +72,33 @@ def setup_database_and_import_data():
         print(f"✅ ¡{cursor.rowcount} Pokémon guardados en la base de datos!")
         
         # --- 4. Insertar y Guardar Datos de Efectividad de Tipos ---
-        print("➡️ Insertando datos de efectividad...")
-        type_data = [('Fire', 'Grass', 2.0), ('Fire', 'Water', 0.5), ('Water', 'Fire', 2.0), ('Grass', 'Water', 2.0), ('Electric', 'Water', 2.0), ('Ice', 'Dragon', 2.0), ('Ground', 'Electric', 2.0), ('Fighting', 'Normal', 2.0), ('Poison', 'Grass', 2.0), ('Flying', 'Fighting', 2.0), ('Psychic', 'Fighting', 2.0), ('Bug', 'Grass', 2.0), ('Rock', 'Fire', 2.0), ('Ghost', 'Psychic', 2.0), ('Dragon', 'Dragon', 2.0), ('Steel', 'Fairy', 2.0), ('Fairy', 'Dragon', 2.0), ('Dark', 'Psychic', 2.0)]
+        # --- 4. Insertar y Guardar Datos de Efectividad de Tipos DESDE EL ARCHIVO CSV ---
+        print("➡️ Insertando datos de efectividad completos desde el archivo...")
+
+        # Asegúrate de que tus archivos CSV estén en una carpeta llamada 'data'
+        # Si no, cambia la ruta aquí.
+        df_types = pd.read_csv('Tabla de tipos.xlsx - Hoja1.csv')
+
+        type_effectiveness_data = []
+        for _, row in df_types.iterrows():
+            defending_type = row['Tipo']
+            if pd.notna(row['Debil']):
+                for attacking_type in row['Debil'].replace(' ','').split(','):
+                    type_effectiveness_data.append((attacking_type, defending_type, 2.0))
+            if pd.notna(row['Resistente']):
+                for attacking_type in row['Resistente'].replace(' ','').split(','):
+                    type_effectiveness_data.append((attacking_type, defending_type, 0.5))
+            if pd.notna(row['Inmune']):
+                for attacking_type in row['Inmune'].replace(' ','').split(','):
+                    type_effectiveness_data.append((attacking_type, defending_type, 0.0))
+
         type_insert_query = "INSERT INTO type_effectiveness (attacking_type, defending_type, effectiveness) VALUES (%s, %s, %s)"
-        cursor.executemany(type_insert_query, type_data)
-        conn.commit() # <<--- GUARDADO #3: Inmediatamente después de insertar las efectividades.
-        print(f"✅ ¡{cursor.rowcount} reglas de efectividad guardadas en la base de datos!")
+        cursor.executemany(type_insert_query, type_effectiveness_data)
+        conn.commit() # <<--- GUARDADO #3: Guardamos las reglas completas.
+        print(f"✅ ¡{cursor.rowcount} reglas de efectividad completas guardadas en la base de datos!")
 
     except FileNotFoundError:
-        print("❌ ERROR CRÍTICO: No se encontró el archivo 'data/Pokemon.csv'.")
+        print("❌ ERROR CRÍTICO: No se encontró el archivo 'Pokemon.csv'.")
     except Error as e:
         print(f"❌ Error durante el setup de la base de datos: {e}")
     finally:
@@ -88,6 +106,43 @@ def setup_database_and_import_data():
         if conn and conn.is_connected():
             cursor.close()
             conn.close()
+
+def import_full_type_effectiveness(cursor, conn):
+    """
+    Lee el CSV de tipos, lo procesa y llena la tabla type_effectiveness.
+    """
+    try:
+        df_types = pd.read_csv('Tabla de tipos.xlsx - Hoja1.csv')
+        print(f"⚙️ Procesando {len(df_types)} filas del CSV de efectividad de tipos...")
+
+        type_effectiveness_data = []
+
+        for _, row in df_types.iterrows():
+            defending_type = row['Tipo']
+
+            if pd.notna(row['Debil']):
+                for attacking_type in row['Debil'].replace(' ','').split(','):
+                    type_effectiveness_data.append((attacking_type, defending_type, 2.0))
+
+            if pd.notna(row['Resistente']):
+                for attacking_type in row['Resistente'].replace(' ','').split(','):
+                    type_effectiveness_data.append((attacking_type, defending_type, 0.5))
+
+            if pd.notna(row['Inmune']):
+                for attacking_type in row['Inmune'].replace(' ','').split(','):
+                    type_effectiveness_data.append((attacking_type, defending_type, 0.0))
+
+        cursor.execute("TRUNCATE TABLE type_effectiveness;")
+        type_insert_query = "INSERT INTO type_effectiveness (attacking_type, defending_type, effectiveness) VALUES (%s, %s, %s)"
+        cursor.executemany(type_insert_query, type_effectiveness_data)
+        conn.commit() # Guardamos los cambios
+
+        print(f"✅ ¡{cursor.rowcount} reglas de efectividad completas importadas!")
+
+    except FileNotFoundError:
+        print("❌ ERROR: No se encontró 'data/Tabla de tipos.xlsx - Hoja1.csv'.")
+    except Exception as e:
+        print(f"❌ Error procesando efectividad de tipos: {e}")
 
 if __name__ == "__main__":
     setup_database_and_import_data()

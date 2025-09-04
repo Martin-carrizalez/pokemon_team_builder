@@ -49,42 +49,91 @@ team_pokemon_names = st.multiselect(
     max_selections=6
 )
 
+# --- SECCIÓN 2: ANÁLISIS DE EQUIPO (con Gráfico Vertical Mejorado) ---
 if len(team_pokemon_names) > 0:
     team_df = df_pokemon[df_pokemon['name'].isin(team_pokemon_names)]
     st.subheader("Tu Equipo Seleccionado")
-    cols_to_show = ['name','form_type','type1','type2','total_stats','hp','attack','defense', 'sp_attack','sp_defense','speed']
+    cols_to_show = ['pokedex_number', 'name', 'form_type', 'type1', 'type2', 'total_stats', 'hp', 'attack', 'defense', 'sp_attack', 'sp_defense', 'speed', 'generation', 'legendary']
     st.dataframe(team_df[cols_to_show])
 
-    # --- ANÁLISIS DE DEBILIDADES (LA FUNCIÓN PRINCIPAL) ---
-    st.subheader("Análisis de Debilidades Defensivas")
+    # --- CONSULTA SQL AVANZADA PARA LA MATRIZ DE VULNERABILIDAD ---
+    st.subheader("📊 Análisis de Vulnerabilidad del Equipo")
     
-    placeholders = ','.join(['%s'] * len(team_pokemon_names))
-    weakness_query = f"""
-        SELECT 
-            te.attacking_type AS tipo_atacante,
-            COUNT(*) AS numero_de_debiles,
-            GROUP_CONCAT(p.name SEPARATOR ', ') as pokemon_debiles
-        FROM pokemon p
-        JOIN type_effectiveness te ON p.type1 = te.defending_type OR p.type2 = te.defending_type
-        WHERE p.name IN ({placeholders}) AND te.effectiveness > 1.0
-        GROUP BY te.attacking_type
-        ORDER BY numero_de_debiles DESC;
+    team_ids = team_df['unique_id'].tolist()
+    placeholders = ','.join(['%s'] * len(team_ids))
+    
+    score_query = f"""
+        SELECT
+            all_types.attacking_type,
+            SUM(
+                COALESCE(
+                    CASE
+                        WHEN eff.effectiveness = 2.0 THEN 1
+                        WHEN eff.effectiveness = 0.5 THEN -1
+                        WHEN eff.effectiveness = 0.0 THEN -2
+                        ELSE 0
+                    END, 0)
+            ) AS team_score
+        FROM
+            (SELECT DISTINCT attacking_type FROM type_effectiveness) AS all_types
+        CROSS JOIN
+            (SELECT * FROM pokemon WHERE unique_id IN ({placeholders})) AS team_pokemon
+        LEFT JOIN
+            type_effectiveness eff ON (team_pokemon.type1 = eff.defending_type OR team_pokemon.type2 = eff.defending_type) 
+            AND all_types.attacking_type = eff.attacking_type
+        GROUP BY
+            all_types.attacking_type
+        ORDER BY
+            team_score DESC;
     """
     
-    df_weakness = run_query(weakness_query, team_pokemon_names)
+    df_scores = run_query(score_query, team_ids)
 
-    if not df_weakness.empty:
-        st.write("Esta tabla muestra qué tipos de ataque son más peligrosos para tu equipo.")
-        fig = px.bar(df_weakness, 
-                     x='tipo_atacante', y='numero_de_debiles',
-                     hover_data=['pokemon_debiles'],
-                     title='Debilidades del Equipo',
-                     labels={'tipo_atacante': 'Tipo de Ataque del Oponente', 'numero_de_debiles': 'Nº de Pokémon Débiles'})
-        st.plotly_chart(fig, use_container_width=True)
+    if not df_scores.empty:
+        # --- AQUÍ EMPIEZA LA MAGIA DEL DISEÑO DE COLUMNAS CON EL NUEVO GRÁFICO ---
+        col1, col2 = st.columns([1, 1.5]) 
+
+        with col1:
+            st.write("**Matriz de Score:**")
+            st.caption("Rojo = Debilidad, Verde = Resistencia.")
+            
+            def style_scores(val):
+                color = ''
+                if val > 0: color = f'background-color: rgba(255, 77, 77, {min(0.25 * val, 1.0)})'
+                elif val < 0: color = f'background-color: rgba(85, 184, 85, {min(0.25 * abs(val), 1.0)})'
+                return color
+
+            st.markdown(df_scores.style.applymap(style_scores, subset=['team_score']).to_html(), unsafe_allow_html=True)
+
+        with col2:
+            st.write("**Gráfico Resumen:**")
+            
+            # Añadimos una columna de categoría para el color
+            df_scores['categoria'] = df_scores['team_score'].apply(lambda x: 'Debilidad' if x > 0 else 'Resistencia')
+            
+            fig = px.bar(
+                df_scores,
+                x='attacking_type', # Tipos en el eje X
+                y='team_score',     # Score en el eje Y
+                color='categoria',  # Coloreamos por categoría
+                color_discrete_map={
+                    'Debilidad': 'crimson',
+                    'Resistencia': 'mediumseagreen'
+                },
+                title='Resumen de Debilidades y Resistencias del Equipo',
+                labels={'team_score': 'Score de Vulnerabilidad', 'attacking_type': 'Tipo de Ataque Oponente'}
+            )
+            fig.update_layout(
+                xaxis_tickangle=-45, # Inclinamos las etiquetas para que no se solapen
+                showlegend=False
+            )
+            st.plotly_chart(fig, use_container_width=True)
+            
     else:
-        st.success("¡Tu equipo parece no tener debilidades comunes según las reglas básicas!")
+        st.error("No se pudo calcular el análisis de vulnerabilidad.")
+
 else:
-    st.info("Selecciona al menos un Pokémon para analizar sus debilidades.")
+    st.info("Selecciona al menos un Pokémon para analizar tu equipo.")
 
 # --- SECCIÓN 2: DASHBOARD Y ANÁLISIS GENERAL ---
 with st.expander("Ver Dashboard y Análisis Avanzado de la Base de Datos"):

@@ -1,0 +1,19 @@
+Tipo,Debil,Resistente,Efectivo,Inmune
+Acero,"Tierra, Fuego, Lucha","Acero, Bicho, Dragón, Hada, Hielo, Normal, Planta, Psiquico, Roca, Volador","Hada, Hielo, Roca",Veneno
+Agua,"Electrico, Planta","Acero, Agua, Fuego, Hielo","Fuego, Roca, Tierra",
+Bicho,"Fuego, Roca, Volador","Lucha, Planta, Tierra","Planta, Psiquico, Siniestro",
+Dragón,"Dragón, Hada, Hielo","Agua, Electrico, Fuego, Planta",Dragón,
+Electrico,Tierra,"Acero, Electrico, Volador","Agua, Volador",
+Fantasma,"Fantasma, Siniestro","Bicho, Veneno","Fantasma, Psiquico","Lucha, Normal"
+Fuego,"Agua, Roca, Tierra","Acero, Bicho, Fuego, Hada, Hielo, Planta","Acero, Bicho, Hielo, Planta",
+Hada,"Acero, Veneno","Bicho, Lucha, Siniestro","Dragón, Lucha, Siniestro",Drgón
+Hielo,"Acero, Fuego, Lucha, Roca",Hielo,"Dragón, Planta, Siniestro, Volados",
+Lucha,"Hada, Psiquico, Volador","Bicho, Roca, Siniestro","Acero, Hielo, Normal, Siniestro",
+Normal,Lucha,,,Fantasma
+Planta,"Bicho, Fuego, Hielo","Agua, electrico, Planta, Tierra","Agua, Roca, Tierra",
+Psiquico,"Bicho, Fantasma, Siniestro","Lucha, Psiquico","Lucha, Veneno",
+Roca,"Acero, Agua, Lucha, Planta, Tierra","Fuego, Normal, Veneno, Volador","Bicho, Fuego, Hielo, Volador",
+Siniestro,"Bicho, Hada, Lucha","Fantasma, Siniestro","Fantasma, Psiquico",Psiquico
+Tierra,"Agua, Hielo, Planta","Roca, Veneno","Acero, Electrico, Fuego, Roca, Veneno",Electrico
+Veneno,"Psiquico, Siniestro, Tierra","Bicho, Hada, Lucha, Planta, Veneno","Hada, Planta",
+Volador,"Electrico, Hielo, Roca","Bicho, Lucha, Planta","Bicho, Lucha, Planta",Tierra

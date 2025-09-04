@@ -58,7 +58,7 @@ def create_enhanced_database():
         
         # Eliminar tablas existentes
         cursor.execute("SET FOREIGN_KEY_CHECKS = 0")
-        cursor.execute("DROP TABLE IF EXISTS team_members, teams, pokemon")
+        cursor.execute("DROP TABLE IF EXISTS team_members, teams, type_effectiveness, pokemon")
         cursor.execute("SET FOREIGN_KEY_CHECKS = 1")
         
         # Tabla principal mejorada
@@ -135,22 +135,32 @@ def create_enhanced_database():
         """)
         
         # Datos básicos de efectividad de tipos
-        type_data = [
-            ('Fire', 'Grass', 2.0), ('Fire', 'Water', 0.5), ('Fire', 'Fire', 0.5),
-            ('Water', 'Fire', 2.0), ('Water', 'Grass', 0.5), ('Water', 'Water', 0.5),
-            ('Grass', 'Water', 2.0), ('Grass', 'Fire', 0.5), ('Grass', 'Grass', 0.5),
-            ('Electric', 'Water', 2.0), ('Electric', 'Flying', 2.0), ('Electric', 'Ground', 0.0),
-            ('Ground', 'Electric', 2.0), ('Ground', 'Flying', 0.0),
-            ('Flying', 'Grass', 2.0), ('Flying', 'Electric', 0.5),
-            ('Psychic', 'Fighting', 2.0), ('Fighting', 'Psychic', 0.5),
-            ('Rock', 'Fire', 2.0), ('Rock', 'Flying', 2.0),
-            ('Steel', 'Rock', 2.0), ('Steel', 'Fire', 0.5)
-        ]
-        
-        cursor.executemany("""
-        INSERT INTO type_effectiveness (attacking_type, defending_type, effectiveness)
-        VALUES (%s, %s, %s)
-        """, type_data)
+        # --- 4. Insertar Datos de Efectividad Completos desde el CSV ---
+        print("➡️ Insertando datos de efectividad completos desde el archivo...")
+
+        # Asegúrate de que tus archivos CSV están en una carpeta llamada 'data'
+        # Si no es así, cambia la ruta aquí.
+        df_types = pd.read_csv('Tabla de tipos.csv', encoding='latin1')
+
+        type_effectiveness_data = []
+        for _, row in df_types.iterrows():
+            defending_type = row['Tipo']
+            if pd.notna(row['Debil']):
+                for attacking_type in row['Debil'].replace(' ','').split(','):
+                    type_effectiveness_data.append((attacking_type, defending_type, 2.0))
+            if pd.notna(row['Resistente']):
+                for attacking_type in row['Resistente'].replace(' ','').split(','):
+                    type_effectiveness_data.append((attacking_type, defending_type, 0.5))
+            if pd.notna(row['Inmune']):
+                for attacking_type in row['Inmune'].replace(' ','').split(','):
+                    type_effectiveness_data.append((attacking_type, defending_type, 0.0))
+
+        # TRUNCATE asegura que la tabla esté vacía antes de insertar los nuevos datos
+        cursor.execute("TRUNCATE TABLE type_effectiveness;")
+
+        type_insert_query = "INSERT INTO type_effectiveness (attacking_type, defending_type, effectiveness) VALUES (%s, %s, %s)"
+        cursor.executemany(type_insert_query, type_effectiveness_data)
+        print(f"✅ ¡{cursor.rowcount} reglas de efectividad completas insertadas!")
         
         connection.commit()
         print("✅ Base de datos mejorada creada exitosamente!")

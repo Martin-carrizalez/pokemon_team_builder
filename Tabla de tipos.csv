@@ -1,19 +1,19 @@
 Tipo,Debil,Resistente,Efectivo,Inmune
-Acero,"Tierra, Fuego, Lucha","Acero, Bicho, Dragón, Hada, Hielo, Normal, Planta, Psiquico, Roca, Volador","Hada, Hielo, Roca",Veneno
-Agua,"Electrico, Planta","Acero, Agua, Fuego, Hielo","Fuego, Roca, Tierra",
-Bicho,"Fuego, Roca, Volador","Lucha, Planta, Tierra","Planta, Psiquico, Siniestro",
-Dragón,"Dragón, Hada, Hielo","Agua, Electrico, Fuego, Planta",Dragón,
-Electrico,Tierra,"Acero, Electrico, Volador","Agua, Volador",
-Fantasma,"Fantasma, Siniestro","Bicho, Veneno","Fantasma, Psiquico","Lucha, Normal"
-Fuego,"Agua, Roca, Tierra","Acero, Bicho, Fuego, Hada, Hielo, Planta","Acero, Bicho, Hielo, Planta",
-Hada,"Acero, Veneno","Bicho, Lucha, Siniestro","Dragón, Lucha, Siniestro",Drgón
-Hielo,"Acero, Fuego, Lucha, Roca",Hielo,"Dragón, Planta, Siniestro, Volados",
-Lucha,"Hada, Psiquico, Volador","Bicho, Roca, Siniestro","Acero, Hielo, Normal, Siniestro",
-Normal,Lucha,,,Fantasma
-Planta,"Bicho, Fuego, Hielo","Agua, electrico, Planta, Tierra","Agua, Roca, Tierra",
-Psiquico,"Bicho, Fantasma, Siniestro","Lucha, Psiquico","Lucha, Veneno",
-Roca,"Acero, Agua, Lucha, Planta, Tierra","Fuego, Normal, Veneno, Volador","Bicho, Fuego, Hielo, Volador",
-Siniestro,"Bicho, Hada, Lucha","Fantasma, Siniestro","Fantasma, Psiquico",Psiquico
-Tierra,"Agua, Hielo, Planta","Roca, Veneno","Acero, Electrico, Fuego, Roca, Veneno",Electrico
-Veneno,"Psiquico, Siniestro, Tierra","Bicho, Hada, Lucha, Planta, Veneno","Hada, Planta",
-Volador,"Electrico, Hielo, Roca","Bicho, Lucha, Planta","Bicho, Lucha, Planta",Tierra
+Steel,"Earth, Fire, Fighting","Steel, Bug, Dragon, Fairy, Ice, Normal, Grass, Psychic, Rock, Flying","Fairy, Ice, Rock",Poison
+Water,"Electrical, Plant","Steel, Water, Fire, Ice","Fire, Rock, Earth",
+Bug,"Fire, Rock, Flying","Fight, Plant, Earth","Plant, Psychic, Dark",
+Dragon,"Dragon, Fairy, Ice","Water, Electric, Fire, Plant",Dragon,
+Electric,Land,"Steel, Electric, Flying","Water, Flying",
+Ghost,"Ghost, Sinister","Bug, Poison","Ghost, Psychic","Fight, Normal"
+Fire,"Water, Rock, Earth","Steel, Bug, Fire, Fairy, Ice, Plant","Steel, Bug, Ice, Plant",
+Fairy,"Steel, Poison","Bug, Fight, Sinister","Dragon, Fighting, Sinister",Dragon
+Ice,"Steel, Fire, Fighting, Rock",Ice,"Dragon, Grass, Dark, Flying",
+Struggle,"Fairy, Psychic, Flying","Bug, Rock, Sinister","Steel, Ice, Normal, Dark",
+Normal,Struggle,,,Ghost
+Plant,"Bug, Fire, Ice","Water, electricity, plant, earth","Water, Rock, Earth",
+Psychic,"Bug, Ghost, Sinister","Fight, Psychic","Fight, Poison",
+Rock,"Steel, Water, Fighting, Plant, Earth","Fire, Normal, Poison, Flying","Bug, Fire, Ice, Flying",
+Sinister,"Bug, Fairy, Fight","Ghost, Sinister","Ghost, Psychic",Psychic
+Land,"Water, Ice, Plant","Rock, Poison","Steel, Electric, Fire, Rock, Poison",Electric
+Poison,"Psychic, Dark, Earth","Bug, Fairy, Fighting, Plant, Poison","Fairy, Plant",
+Flying,"Electric, Ice, Rock","Bug, Fight, Plant","Bug, Fight, Plant",Land
